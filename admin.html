@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repayment Admin Panel</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .card { background: #ffffff; width: 100%; max-width: 450px; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        h2 { font-size: 22px; color: #0f172a; margin-bottom: 20px; text-align: center; }
+        .input-group { margin-bottom: 16px; text-align: left; }
+        .input-group label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
+        .input-group input:focus { border-color: #0062e6; }
+        .btn { background: #0062e6; color: white; border: none; padding: 13px; width: 100%; font-size: 15px; font-weight: 600; border-radius: 10px; cursor: pointer; }
+        .btn:hover { background: #004bb5; }
+        .result-box { margin-top: 20px; background: #f8fafc; border: 1px dashed #cbd5e1; padding: 15px; border-radius: 10px; word-break: break-all; }
+        .result-box label { font-size: 12px; font-weight: 600; color: #64748b; }
+        .link-text { font-size: 13px; color: #0f172a; font-weight: 600; margin: 8px 0; word-break: break-all; }
+        .copy-btn { background: #16a34a; color: #ffffff; width: 100%; margin-top: 8px; padding: 10px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .copy-btn:hover { background: #15803d; }
+        .hidden { display: none !important; }
+        .error-msg { color: #dc2626; font-size: 13px; margin-top: 10px; text-align: center; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <!-- PASSWORD LOGIN CARD -->
+    <div class="card" id="login-card">
+        <h2>Admin Protection</h2>
+        <div class="input-group">
+            <label for="admin-pass">Enter Admin Password</label>
+            <input type="password" id="admin-pass" placeholder="Enter password">
+        </div>
+        <button class="btn" id="login-btn">Login to Admin</button>
+        <div id="login-error" class="error-msg hidden">Incorrect Password!</div>
+    </div>
+
+    <!-- MAIN ADMIN PANEL -->
+    <div class="card hidden" id="admin-card">
+        <h2>Link Generator</h2>
+        
+        <div class="input-group">
+            <label for="upi-input">UPI ID</label>
+            <input type="text" id="upi-input" placeholder="e.g. 5igdwe@okkici" value="5igdwe@okkici">
+        </div>
+
+        <div class="input-group">
+            <label for="amount-input">Amount (₹)</label>
+            <input type="number" id="amount-input" placeholder="e.g. 25000" value="25000">
+        </div>
+
+        <div class="input-group">
+            <label for="id-input">Order / User ID (Optional)</label>
+            <input type="text" id="id-input" placeholder="e.g. ORD123456">
+        </div>
+
+        <button class="btn" id="generate-btn">Generate Payment Link</button>
+
+        <div id="result" class="result-box hidden">
+            <label>Generated Client Link:</label>
+            <div class="link-text" id="generated-link">-</div>
+            <button class="copy-btn" id="copy-link-btn">Copy Link</button>
+        </div>
+    </div>
+
+<script>
+    const ADMIN_PASSWORD = "1234";
+
+    const loginCard = document.getElementById('login-card');
+    const adminCard = document.getElementById('admin-card');
+    const passInput = document.getElementById('admin-pass');
+    const loginErr = document.getElementById('login-error');
+
+    document.getElementById('login-btn').addEventListener('click', () => {
+        if (passInput.value === ADMIN_PASSWORD) {
+            loginCard.classList.add('hidden');
+            adminCard.classList.remove('hidden');
+        } else {
+            loginErr.classList.remove('hidden');
+        }
+    });
+
+    document.getElementById('generate-btn').addEventListener('click', () => {
+        const upi = document.getElementById('upi-input').value.trim();
+        const amount = document.getElementById('amount-input').value.trim();
+        let orderId = document.getElementById('id-input').value.trim();
+
+        if (!upi || !amount) {
+            alert('Please enter both UPI ID and Amount!');
+            return;
+        }
+
+        if (!orderId) {
+            orderId = 'ORD' + Math.floor(100000 + Math.random() * 900000);
+        }
+
+        const payload = JSON.stringify({ upi: upi, amount: amount, id: orderId });
+        const encodedData = btoa(payload);
+
+        // Fixed base URL logic for Netlify root index.html
+        const origin = window.location.origin;
+        const finalUrl = `${origin}/index.html?data=${encodedData}`;
+
+        document.getElementById('generated-link').innerText = finalUrl;
+        document.getElementById('result').classList.remove('hidden');
+    });
+
+    document.getElementById('copy-link-btn').addEventListener('click', () => {
+        const linkText = document.getElementById('generated-link').innerText;
+        navigator.clipboard.writeText(linkText).then(() => {
+            const btn = document.getElementById('copy-link-btn');
+            btn.innerText = 'Copied!';
+            setTimeout(() => btn.innerText = 'Copy Link', 2000);
+        });
+    });
+</script>
+
+</body>
+</html>
