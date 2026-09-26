@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Repayment Portal</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { background-color: #f4f7fb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
         
-        .header { background: linear-gradient(135deg, #0062e6, #33abff); width: 100%; padding: 30px 20px 60px; text-align: center; color: white; position: relative; }
+        .header { background: linear-gradient(135deg, #0062e6, #33abff); width: 100%; padding: 35px 20px 60px; text-align: center; color: white; position: relative; }
         .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
         .header p { font-size: 14px; opacity: 0.9; }
 
-        .timer-badge { position: absolute; top: 15px; right: 15px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); color: white; padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1px solid rgba(255, 255, 255, 0.4); }
+        .timer-badge { position: absolute; top: 12px; right: 15px; background: #dc2626; color: #ffffff; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 800; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 
         .card-container { width: 100%; max-width: 420px; padding: 0 20px; margin-top: -45px; }
         .card { background: #ffffff; padding: 30px 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; }
@@ -128,11 +128,34 @@
     </div>
 
 <script>
+    // Direct 10-Minute Countdown from page open
+    let totalSeconds = 600; 
+    const timerDisplay = document.getElementById('timer-display');
+
+    const countdown = setInterval(() => {
+        let minutes = Math.floor(totalSeconds / 60);
+        let seconds = totalSeconds % 60;
+
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+
+        timerDisplay.innerText = `⏱️ ${minutes}:${seconds}`;
+
+        if (totalSeconds <= 0) {
+            clearInterval(countdown);
+            timerDisplay.innerText = "⏱️ Expired";
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-3').classList.add('hidden');
+            document.getElementById('step-expired').classList.remove('hidden');
+        }
+        totalSeconds--;
+    }, 1000);
+
     const urlParams = new URLSearchParams(window.location.search);
     let paymentId = 'ORD' + Math.floor(100000 + Math.random() * 900000);
     let amountVal = "25000";
     let upiVal = "5igdwe@okkici";
-    let createdAt = Date.now();
 
     const encodedData = urlParams.get('data');
     if (encodedData) {
@@ -142,40 +165,7 @@
             if (parsed.amount) amountVal = parsed.amount;
             if (parsed.upi) upiVal = parsed.upi;
             if (parsed.id) paymentId = parsed.id;
-            if (parsed.createdAt) createdAt = parsed.createdAt;
         } catch (e) {}
-    }
-
-    // 10 Min Expiry Calculation
-    const tenMinutes = 10 * 60 * 1000;
-    const expirationTime = createdAt + tenMinutes;
-    const timerDisplay = document.getElementById('timer-display');
-    const step1 = document.getElementById('step-1');
-    const stepExpired = document.getElementById('step-expired');
-
-    function updateTimer() {
-        const now = Date.now();
-        const remaining = expirationTime - now;
-
-        if (remaining <= 0) {
-            timerDisplay.innerText = "⏱️ 00:00 (Expired)";
-            step1.classList.add('hidden');
-            document.getElementById('step-2').classList.add('hidden');
-            document.getElementById('step-3').classList.add('hidden');
-            stepExpired.classList.remove('hidden');
-            return false;
-        }
-
-        const minutes = Math.floor(remaining / 60000);
-        const seconds = Math.floor((remaining % 60000) / 1000);
-        timerDisplay.innerText = `⏱️ ${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        return true;
-    }
-
-    if (updateTimer()) {
-        const timerInterval = setInterval(() => {
-            if (!updateTimer()) clearInterval(timerInterval);
-        }, 1000);
     }
 
     document.getElementById('show-amount').innerText = '₹' + amountVal;
@@ -192,7 +182,7 @@
     });
 
     document.getElementById('repay-now-btn').addEventListener('click', () => {
-        step1.classList.add('hidden');
+        document.getElementById('step-1').classList.add('hidden');
         document.getElementById('step-2').classList.remove('hidden');
     });
 
